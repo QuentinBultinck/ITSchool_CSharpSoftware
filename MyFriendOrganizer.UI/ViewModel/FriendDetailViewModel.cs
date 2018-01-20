@@ -1,9 +1,10 @@
-﻿using MyFriendOrganizer.Model;
-using MyFriendOrganizer.UI.Data;
+﻿using MyFriendOrganizer.UI.Data;
 using MyFriendOrganizer.UI.Event;
 using System.Threading.Tasks;
 using Prism.Events;
-using System;
+using System.Windows.Input;
+using Prism.Commands;
+using MyFriendOrganizer.UI.Wrapper;
 
 namespace MyFriendOrganizer.UI.ViewModel
 {
@@ -11,27 +12,35 @@ namespace MyFriendOrganizer.UI.ViewModel
     {
         private IFriendDataService _dataService;
         private IEventAggregator _eventAggregator;
+        private FriendWrapper _selectedFriend;
 
         public FriendDetailViewModel(IFriendDataService friendDataService, IEventAggregator eventAggregator)
         {
             _dataService = friendDataService;
             _eventAggregator = eventAggregator;
             _eventAggregator.GetEvent<OpenFriendDetailViewEvent>().Subscribe(OnOpenFriendDetailView);
-        }
 
-        private async void OnOpenFriendDetailView(int friendId)
-        {
-            await LoadAsync(friendId);
+            SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
 
         public async Task LoadAsync(int friendId)
         {
-            SelectedFriend = await _dataService.GetByIdAsync(friendId);
+            var friend = await _dataService.GetByIdAsync(friendId);
+            SelectedFriend = new FriendWrapper(friend);
+
+            // Deze functie wordt ook uitgevoerd als er properties changen
+            SelectedFriend.PropertyChanged += (s, e) =>
+            {
+                //Als er errors zijn 
+                if (e.PropertyName == nameof(SelectedFriend.HasErrors))
+                {
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged(); // wordt hier voor 1x op true gezet
+                }
+            };
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged(); // Als er errors zijn wordt true => false; Als er geen errors zijn wordt dit true
         }
 
-        private Friend _selectedFriend;
-
-        public Friend SelectedFriend
+        public FriendWrapper SelectedFriend
         {
             get { return _selectedFriend; }
             set
@@ -41,6 +50,28 @@ namespace MyFriendOrganizer.UI.ViewModel
             }
         }
 
+        public ICommand SaveCommand { get; } // Zodat XAML eraan kan
 
+        private async void OnSaveExecute()
+        {
+            await _dataService.SaveAsync(SelectedFriend.Model);
+            _eventAggregator.GetEvent<AfterFriendSavedEvent>().Publish(new AfterFriendSavedEventArgs
+            {
+                Id = SelectedFriend.Id,
+                DisplayMember = SelectedFriend.FirstName + " " + SelectedFriend.LastName
+            });
+        }
+
+        //Can't save errors if the friend has errors
+        private bool OnSaveCanExecute()
+        {
+            //TODO: Check in addition if friend has changes
+            return SelectedFriend != null && !SelectedFriend.HasErrors;
+        }
+
+        private async void OnOpenFriendDetailView(int friendId)
+        {
+            await LoadAsync(friendId);
+        }
     }
 }
