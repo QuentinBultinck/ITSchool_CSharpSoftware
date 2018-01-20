@@ -14,7 +14,7 @@ namespace MyFriendOrganizer.UI
             var bootstrapper = new Bootstrapper();
             var container = bootstrapper.Bootstrap();
 
-            //Autofax regelt de dependencies via de Bootstrapper
+            //Autofac regelt de dependencies via de Bootstrapper
             var mainWindow = container.Resolve<MainWindow>();
             MainWindow.Show();
         }

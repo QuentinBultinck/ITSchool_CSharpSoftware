@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using MyFriendOrganizer.DataAccess;
-using MyFriendOrganizer.UI.Data;
+using MyFriendOrganizer.UI.Data.Lookups;
+using MyFriendOrganizer.UI.Data.Repositories;
+using MyFriendOrganizer.UI.View.Services;
 using MyFriendOrganizer.UI.ViewModel;
 using Prism.Events;
 
@@ -20,12 +22,15 @@ namespace MyFriendOrganizer.UI.Startup
             builder.RegisterType<FriendOrganizerDBContext>().AsSelf();
 
             builder.RegisterType<MainWindow>().AsSelf();
+
+            builder.RegisterType<MessageDialogService>().As<IMessageDialogService>();
+
             builder.RegisterType<MainViewModel>().AsSelf();
             builder.RegisterType<NavigationViewModel>().As<INavigationViewModel>();
             builder.RegisterType<FriendDetailViewModel>().As<IFriendDetailViewModel>();
 
             builder.RegisterType<LookupDataService>().AsImplementedInterfaces();
-            builder.RegisterType<FriendDataService>().As<IFriendDataService>();
+            builder.RegisterType<FriendRepository>().As<IFriendRepository>();
 
             return builder.Build();
         }
