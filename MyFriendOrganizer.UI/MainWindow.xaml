@@ -4,39 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyFriendOrganizer.UI"
+        xmlns:view="clr-namespace:MyFriendOrganizer.UI.View"
         mc:Ignorable="d"
         Title="MyFriendOganizer" Height="350" Width="525" FontSize="20">
+    <!-- xmlns:view="clr-namespace:MyFriendOrganizer.UI.View" zodat we de Views folder kunnen gebruiken -->
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition /> <!-- neemt dan de vorige width -->
         </Grid.ColumnDefinitions>
-        
-        <!-- TwoWay zal ook wegschrijven naar de MainViewModel als het hier veranderd -->
-        <ListView ItemsSource="{Binding Friends}"
-                  SelectedItem="{Binding SelectedFriend,Mode=TwoWay}" 
-                  DisplayMemberPath="FirstName"/>
 
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <!-- Height auto neemt max height -->
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition/> <!-- neemt dan de vorige Height -->
-            </Grid.RowDefinitions>
-            
-            <Label Content="FirstName" Margin="10 10 10 0"/>
-            <!-- UpdateSourceTrigger: wanneer wordt dit geupdate; PropertyChanged: als de text veranderd -->
-            <TextBox Grid.Row="1" Text="{Binding SelectedFriend.FirstName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
+        <!-- Part van de UI van elkaar los koppelen en ViewModel aan meegeven -->
+        <view:NavigationView DataContext="{Binding NavigationViewModel}"/>
 
-            <Label Grid.Row="2" Content="LastName" Margin="10 0"/>
-            <TextBox Grid.Row="3" Text="{Binding SelectedFriend.LastName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
+        <view:FriendDetailView Grid.Column="1" DataContext="{Binding FriendDetailViewModel}"/>
 
-            <Label Grid.Row="4" Content="Email" Margin="10 0"/>
-            <TextBox Grid.Row="5" Text="{Binding SelectedFriend.Email,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
-        </Grid>
     </Grid>
 </Window>
