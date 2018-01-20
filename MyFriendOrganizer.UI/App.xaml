@@ -1,0 +1,9 @@
+﻿<Application x:Class="MyFriendOrganizer.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:MyFriendOrganizer.UI"
+             Startup="Application_Startup"> <!-- ipv StartupUri="MainWindow.xaml"; roept de functie Application_Startup op in App.xaml.cs -->
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>
