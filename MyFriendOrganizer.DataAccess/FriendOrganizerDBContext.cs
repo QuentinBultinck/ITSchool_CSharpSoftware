@@ -7,13 +7,14 @@ namespace MyFriendOrganizer.DataAccess
 {
     public class FriendOrganizerDBContext : DbContext
     {
-        public FriendOrganizerDBContext():base("MyFriendOrganizerDB")
+        public FriendOrganizerDBContext() : base("MyFriendOrganizerDB")
         {
 
         }
 
-        //Table Friend
+        //Tables
         public DbSet<Friend> Friends { get; set; }
+        public DbSet<ProgrammingLanguage> ProgrammingsLanguages { get; set; }
 
         //Hier zeg je hoe de database er moet uitzien
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

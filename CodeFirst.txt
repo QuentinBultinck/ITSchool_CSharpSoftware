@@ -1,6 +1,12 @@
 1. Tools > Nuget Package Manager > Package Manager Console
 2. In the console > Default Project select DataAccess
 3. Enable-Migrations
-4. Configuration aanpassen
+4. Migrations/Configuration aanpassen
 5. Add-Migration InitialDatabase
 6. Seeding in Configuration.cs => Update-Database
+
+When changing database:
+1. Make changes in DBContext 
+2. To seed DB => Migrations/Configuration
+3. Add-Migration [Name]
+4. Update-Database to seed

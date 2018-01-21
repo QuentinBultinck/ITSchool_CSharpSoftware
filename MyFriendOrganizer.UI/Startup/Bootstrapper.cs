@@ -29,7 +29,7 @@ namespace MyFriendOrganizer.UI.Startup
             builder.RegisterType<NavigationViewModel>().As<INavigationViewModel>();
             builder.RegisterType<FriendDetailViewModel>().As<IFriendDetailViewModel>();
 
-            builder.RegisterType<LookupDataService>().AsImplementedInterfaces();
+            builder.RegisterType<LookupDataService>().AsImplementedInterfaces(); // Omdat LookupDataService van meerdere interfaces erft
             builder.RegisterType<FriendRepository>().As<IFriendRepository>();
 
             return builder.Build();

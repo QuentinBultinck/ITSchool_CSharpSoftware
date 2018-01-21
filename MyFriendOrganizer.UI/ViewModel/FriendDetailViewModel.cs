@@ -8,6 +8,8 @@ using MyFriendOrganizer.UI.Data.Repositories;
 using MyFriendOrganizer.Model;
 using System;
 using MyFriendOrganizer.UI.View.Services;
+using MyFriendOrganizer.UI.Data.Lookups;
+using System.Collections.ObjectModel;
 
 namespace MyFriendOrganizer.UI.ViewModel
 {
@@ -16,44 +18,31 @@ namespace MyFriendOrganizer.UI.ViewModel
         private IFriendRepository _friendRepository;
         private IEventAggregator _eventAggregator;
         private IMessageDialogService _messageDialogService;
+        private IProgrammingLanguageLookupDataService _programmingLanguageLookupDataService;
         private FriendWrapper _selectedFriend;
         private bool _hasChanges;
 
-        public FriendDetailViewModel(IFriendRepository friendRepository, IEventAggregator eventAggregator, IMessageDialogService messageDialogService)
+        public FriendDetailViewModel(IFriendRepository friendRepository,
+            IEventAggregator eventAggregator,
+            IMessageDialogService messageDialogService, 
+            IProgrammingLanguageLookupDataService programmingLanguageLookupDataService)
         {
             _friendRepository = friendRepository;
             _eventAggregator = eventAggregator;
             _messageDialogService = messageDialogService;
+            _programmingLanguageLookupDataService = programmingLanguageLookupDataService;
 
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
             DeleteCommand = new DelegateCommand(OnDeleteExecute);
+
+            ProgrammingLanguages = new ObservableCollection<LookupItem>();
         }
 
         public async Task LoadAsync(int? friendId) // int? nullable
         {
             var friend = friendId.HasValue ? await _friendRepository.GetByIdAsync(friendId.Value) : CreateNewFriend();
-            SelectedFriend = new FriendWrapper(friend);
-
-            // Deze functie wordt ook uitgevoerd als er properties changen
-            SelectedFriend.PropertyChanged += (s, e) =>
-            {
-                if (!HasChanges)
-                {
-                    HasChanges = _friendRepository.HasChanges();
-                }
-                //Als er errors zijn 
-                if (e.PropertyName == nameof(SelectedFriend.HasErrors))
-                {
-                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged(); // wordt hier voor 1x op true gezet
-                }
-            };
-            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged(); // Als er errors zijn wordt true => false; Als er geen errors zijn wordt dit true
-
-            if (SelectedFriend.Id == 0)
-            {
-                //Trick to trigger validation
-                SelectedFriend.FirstName = "";
-            }
+            InitializeSelectedFriend(friend);
+            await LoadProgrammingLanguagesLookupAsync();
         }
 
         public FriendWrapper SelectedFriend
@@ -69,6 +58,8 @@ namespace MyFriendOrganizer.UI.ViewModel
         public ICommand SaveCommand { get; }
 
         public ICommand DeleteCommand { get; }
+
+        public ObservableCollection<LookupItem> ProgrammingLanguages { get; }
 
         public bool HasChanges
         {
@@ -117,6 +108,42 @@ namespace MyFriendOrganizer.UI.ViewModel
             var friend = new Friend();
             _friendRepository.Add(friend);
             return friend;
+        }
+
+        private void InitializeSelectedFriend(Friend friend)
+        {
+            SelectedFriend = new FriendWrapper(friend);
+            // Deze functie wordt ook uitgevoerd als er properties changen
+            SelectedFriend.PropertyChanged += (s, e) =>
+            {
+                if (!HasChanges)
+                {
+                    HasChanges = _friendRepository.HasChanges();
+                }
+                //Als er errors zijn 
+                if (e.PropertyName == nameof(SelectedFriend.HasErrors))
+                {
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged(); // wordt hier voor 1x op true gezet
+                }
+            };
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged(); // Als er errors zijn wordt true => false; Als er geen errors zijn wordt dit true
+
+            if (SelectedFriend.Id == 0)
+            {
+                //Trick to trigger validation
+                SelectedFriend.FirstName = "";
+            }
+        }
+
+        private async Task LoadProgrammingLanguagesLookupAsync()
+        {
+            ProgrammingLanguages.Clear();
+            ProgrammingLanguages.Add(new NullLookupItem{ DisplayMember = " - " });
+            var lookup = await _programmingLanguageLookupDataService.GetProgrammingLanguageLookupAsync();
+            foreach (var lookupItem in lookup)
+            {
+                ProgrammingLanguages.Add(lookupItem);
+            }
         }
     }
 }

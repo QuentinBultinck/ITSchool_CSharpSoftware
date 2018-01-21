@@ -18,20 +18,26 @@ namespace MyFriendOrganizer.UI.Wrapper
             get { return GetValue<string>(); } // CallerMemberName = Firstname en verwacht een string
             set
             {
-                SetValue<string>(value);
+                SetValue(value);
             }
         }
 
         public string LastName
         {
             get { return GetValue<string>(); ; }
-            set { SetValue<string>(value); }
+            set { SetValue(value); }
         }
 
         public string Email
         {
             get { return GetValue<string>(); ; }
-            set { SetValue<string>(value); }
+            set { SetValue(value); }
+        }
+
+        public int? FavoriteLanguageId
+        {
+            get { return GetValue<int?>(); }
+            set { SetValue(value); }
         }
 
         //Here come custom error messages
