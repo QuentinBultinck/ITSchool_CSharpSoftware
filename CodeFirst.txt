@@ -3,10 +3,10 @@
 3. Enable-Migrations
 4. Migrations/Configuration aanpassen
 5. Add-Migration InitialDatabase
-6. Seeding in Configuration.cs => Update-Database
+6. Seeding in Configuration.cs => Update-Database to execute seed and migration
 
 When changing database:
 1. Make changes in DBContext 
 2. To seed DB => Migrations/Configuration
 3. Add-Migration [Name]
-4. Update-Database to seed
+4. Update-Database to seed and execute migration

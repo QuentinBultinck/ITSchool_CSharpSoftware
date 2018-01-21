@@ -1,9 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyFriendOrganizer.Model
 {
     public class Friend
     {
+        public Friend()
+        {
+            PhoneNumbers = new Collection<FriendPhoneNumber>();
+        }
+
         // [Key]     heeft naam Id => automatisch gezien als PK
         public int Id { get; set; }
 
@@ -21,5 +28,7 @@ namespace MyFriendOrganizer.Model
         public int? FavoriteLanguageId { get; set; }
 
         public ProgrammingLanguage FavoriteLanguage { get; set; }
+
+        public ICollection<FriendPhoneNumber> PhoneNumbers { get; set; }
     }
 }

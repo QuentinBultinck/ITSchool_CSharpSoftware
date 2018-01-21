@@ -7,7 +7,7 @@
         xmlns:view="clr-namespace:MyFriendOrganizer.UI.View"
         xmlns:viewModel="clr-namespace:MyFriendOrganizer.UI.ViewModel"
         mc:Ignorable="d"
-        Title="MyFriendOganizer" Height="500" Width="525" FontSize="20">
+        Title="MyFriendOganizer" Height="700" Width="1000" FontSize="20" WindowStartupLocation="CenterScreen">
     <!-- xmlns:view="clr-namespace:MyFriendOrganizer.UI.View" zodat we de Views folder kunnen gebruiken -->
 
     <Window.Resources>
