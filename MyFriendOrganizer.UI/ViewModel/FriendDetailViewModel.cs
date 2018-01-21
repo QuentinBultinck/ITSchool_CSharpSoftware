@@ -81,6 +81,13 @@ namespace MyFriendOrganizer.UI.ViewModel
 
         protected override async void OnDeleteExecute()
         {
+            //Check if friend is part of any meeting, if so don't delete and show messagebox
+            if(await _friendRepository.HasMeetingsAsync(SelectedFriend.Id))
+            {
+                _messageDialogService.ShowInfoDialog($"{SelectedFriend.FirstName} {SelectedFriend.LastName} can't be deleted, as this friend is part of at least one meeting");
+                return;
+            }
+                
             var result = _messageDialogService.ShowOkCancelDialog($"Do you really want to delete the friend {SelectedFriend.FirstName} {SelectedFriend.LastName}", "Question");
             if (result == MessageDialogResult.Ok)
             {

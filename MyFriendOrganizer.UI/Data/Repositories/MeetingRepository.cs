@@ -2,6 +2,7 @@
 using System.Data.Entity;
 using MyFriendOrganizer.Model;
 using MyFriendOrganizer.DataAccess;
+using System.Collections.Generic;
 
 namespace MyFriendOrganizer.UI.Data.Repositories
 {
@@ -16,6 +17,11 @@ namespace MyFriendOrganizer.UI.Data.Repositories
             return await Context.Meetings
               .Include(m => m.Friends)
               .SingleAsync(m => m.Id == id);
+        }
+
+        public async Task<IEnumerable<Friend>> GetAllFriendsAsync()
+        {
+            return await Context.Set<Friend>().ToListAsync();
         }
     }
 }
