@@ -27,10 +27,14 @@ namespace MyFriendOrganizer.UI.Startup
 
             builder.RegisterType<MainViewModel>().AsSelf();
             builder.RegisterType<NavigationViewModel>().As<INavigationViewModel>();
-            builder.RegisterType<FriendDetailViewModel>().As<IFriendDetailViewModel>();
+
+            // Keyed zodat we erin MainWindow aan kunnen in IIndex
+            builder.RegisterType<FriendDetailViewModel>().As<IFriendDetailViewModel>().Keyed<IDetailViewModel>(nameof(FriendDetailViewModel)); 
+            builder.RegisterType<MeetingDetailViewModel>().As<IMeetingDetailViewModel>().Keyed<IDetailViewModel>(nameof(MeetingDetailViewModel));
 
             builder.RegisterType<LookupDataService>().AsImplementedInterfaces(); // Omdat LookupDataService van meerdere interfaces erft
             builder.RegisterType<FriendRepository>().As<IFriendRepository>();
+            builder.RegisterType<MeetingRepository>().As<IMeetingRepository>();
 
             return builder.Build();
         }

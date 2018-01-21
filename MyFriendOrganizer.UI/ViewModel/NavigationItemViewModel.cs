@@ -1,11 +1,6 @@
 ﻿using MyFriendOrganizer.UI.Event;
 using Prism.Commands;
 using Prism.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace MyFriendOrganizer.UI.ViewModel
@@ -14,13 +9,15 @@ namespace MyFriendOrganizer.UI.ViewModel
     {
         private string _displayMember;
         private IEventAggregator _eventAggregator;
+        private string _detailViewModelName;
 
-        public NavigationItemViewModel(int id, string displayMember, IEventAggregator eventAggregator)
+        public NavigationItemViewModel(int id, string displayMember, string detailViewModelName, IEventAggregator eventAggregator)
         {
             Id = id;
             _eventAggregator = eventAggregator;
             DisplayMember = displayMember;
-            OpenFriendDetailViewCommand = new DelegateCommand(OnOpenFriendDetailView);
+            _detailViewModelName = detailViewModelName;
+            OpenDetailViewCommand = new DelegateCommand(OnOpenDetailViewExecute);
         }
 
         public int Id { get; set; }
@@ -35,11 +32,16 @@ namespace MyFriendOrganizer.UI.ViewModel
             }
         }
 
-        public ICommand OpenFriendDetailViewCommand { get; }
+        public ICommand OpenDetailViewCommand { get; }
 
-        private void OnOpenFriendDetailView()
+        private void OnOpenDetailViewExecute()
         {
-            _eventAggregator.GetEvent<OpenFriendDetailViewEvent>().Publish(Id);
+            _eventAggregator.GetEvent<OpenDetailViewEvent>()
+                .Publish(new OpenDetailViewEventArgs
+                {
+                    Id = Id,
+                    ViewModelName = _detailViewModelName
+                });
         }
     }
 }

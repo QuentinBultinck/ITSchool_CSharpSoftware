@@ -16,28 +16,23 @@ using System.Linq;
 
 namespace MyFriendOrganizer.UI.ViewModel
 {
-    public class FriendDetailViewModel : ViewModelBase, IFriendDetailViewModel
+    public class FriendDetailViewModel : DetailViewModelBase, IFriendDetailViewModel
     {
         private IFriendRepository _friendRepository;
-        private IEventAggregator _eventAggregator;
         private IMessageDialogService _messageDialogService;
         private IProgrammingLanguageLookupDataService _programmingLanguageLookupDataService;
         private FriendWrapper _selectedFriend;
         private FriendPhoneNumberWrapper _selectedPhoneNumber;
-        private bool _hasChanges;
 
         public FriendDetailViewModel(IFriendRepository friendRepository,
             IEventAggregator eventAggregator,
             IMessageDialogService messageDialogService,
-            IProgrammingLanguageLookupDataService programmingLanguageLookupDataService)
+            IProgrammingLanguageLookupDataService programmingLanguageLookupDataService) : base(eventAggregator)
         {
             _friendRepository = friendRepository;
-            _eventAggregator = eventAggregator;
             _messageDialogService = messageDialogService;
             _programmingLanguageLookupDataService = programmingLanguageLookupDataService;
 
-            SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
-            DeleteCommand = new DelegateCommand(OnDeleteExecute);
             AddPhoneNumberCommand = new DelegateCommand(OnAddPhoneNumberExecute);
             RemovePhoneNumberCommand = new DelegateCommand(OnRemovePhoneNumberExecute, OnRemovePhoneNumberCanExecute);
 
@@ -45,7 +40,7 @@ namespace MyFriendOrganizer.UI.ViewModel
             PhoneNumbers = new ObservableCollection<FriendPhoneNumberWrapper>();
         }
 
-        public async Task LoadAsync(int? friendId) // int? nullable
+        public override async Task LoadAsync(int? friendId) // int? nullable
         {
             var friend = friendId.HasValue ? await _friendRepository.GetByIdAsync(friendId.Value) : CreateNewFriend();
 
@@ -76,10 +71,6 @@ namespace MyFriendOrganizer.UI.ViewModel
             }
         }
 
-        public ICommand SaveCommand { get; }
-
-        public ICommand DeleteCommand { get; }
-
         public ICommand AddPhoneNumberCommand { get; set; }
 
         public ICommand RemovePhoneNumberCommand { get; set; }
@@ -88,43 +79,25 @@ namespace MyFriendOrganizer.UI.ViewModel
 
         public ObservableCollection<FriendPhoneNumberWrapper> PhoneNumbers { get; set; }
 
-        public bool HasChanges
-        {
-            get { return _hasChanges; }
-            set
-            {
-                if (_hasChanges != value)
-                {
-                    _hasChanges = value;
-                    OnPropertyChanged();
-                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
-                }
-            }
-        }
-
-        private async void OnDeleteExecute()
+        protected override async void OnDeleteExecute()
         {
             var result = _messageDialogService.ShowOkCancelDialog($"Do you really want to delete the friend {SelectedFriend.FirstName} {SelectedFriend.LastName}", "Question");
             if (result == MessageDialogResult.Ok)
             {
                 _friendRepository.Remove(SelectedFriend.Model);
                 await _friendRepository.SaveAsync();
-                _eventAggregator.GetEvent<AfterFriendDeletedEvent>().Publish(SelectedFriend.Id);
+                RaiseDetailDeletedEvent(SelectedFriend.Id);
             }
         }
 
-        private async void OnSaveExecute()
+        protected override async void OnSaveExecute()
         {
             await _friendRepository.SaveAsync();
             HasChanges = _friendRepository.HasChanges();
-            _eventAggregator.GetEvent<AfterFriendSavedEvent>().Publish(new AfterFriendSavedEventArgs
-            {
-                Id = SelectedFriend.Id,
-                DisplayMember = SelectedFriend.FirstName + " " + SelectedFriend.LastName
-            });
+            RaiseDetailSavedEvent(SelectedFriend.Id, $"{SelectedFriend.FirstName} {SelectedFriend.LastName}");
         }
 
-        private bool OnSaveCanExecute()
+        protected override bool OnSaveCanExecute()
         {
             return SelectedFriend != null // Als er een friend selected is
                 && !SelectedFriend.HasErrors // Als de selected friend geen errors heeft
